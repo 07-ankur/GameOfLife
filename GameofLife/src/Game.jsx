@@ -436,23 +436,11 @@ const GameOfLife = () => {
 
   const StyledTypography = styled(Typography)(({ theme }) => ({
     fontWeight: 700,
-    background: "linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)",
-    WebkitBackgroundClip: "text",
-    WebkitTextFillColor: "transparent",
+    color:"#1976D2",
     textShadow: "2px 2px 4px rgba(0,0,0,0.1)",
     letterSpacing: "0.05em",
     textTransform: "uppercase",
     position: "relative",
-    "&::after": {
-      content: '""',
-      position: "absolute",
-      bottom: "-4px",
-      left: "0",
-      width: "190px",
-      height: "4px",
-      background: "linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)",
-      borderRadius: "2px",
-    },
   }));
 
   // SVG Grid
@@ -529,13 +517,14 @@ const GameOfLife = () => {
             <StyledTypography variant="h5" gutterBottom>
               Game Of Life
             </StyledTypography>
-            <FormControl style={{ minWidth: 100 }}>
+            <FormControl style={{ minWidth: 100}}>
               <InputLabel>Render Mode</InputLabel>
               <Select
                 value={renderMode}
                 onChange={(e) => setRenderMode(e.target.value)}
                 label="Render Mode"
                 disabled={hasDisplayNumber}
+                sx={{maxHeight:45}}
               >
                 <MenuItem value="canvas">Canvas</MenuItem>
                 <MenuItem value="svg">SVG</MenuItem>
