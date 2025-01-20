@@ -13,8 +13,14 @@ import {
   Container,
   Paper,
   TextField,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import Quiz from "@mui/icons-material/Quiz";
 
 const getCanvasDimensions = () => {
   const width = Math.min(window.innerWidth - 24, 1064);
@@ -133,27 +139,28 @@ const GameOfLife = () => {
   const [displayNumber, setDisplayNumber] = useState("");
   const [hasDisplayNumber, setHasDisplayNumber] = useState(false);
   const [animationSpeed, setAnimationSpeed] = useState(500);
+  const [rulesOpen, setRulesOpen] = useState(false);
   const lastUpdateTime = useRef(0);
   const canvasRef = useRef(null);
   const animationFrameRef = useRef();
 
   useEffect(() => {
     let animationId;
-    
+
     const animate = (timestamp) => {
       if (isRunning && !isPaused) {
         if (!lastUpdateTime.current) {
           lastUpdateTime.current = timestamp;
         }
-        
+
         const elapsed = timestamp - lastUpdateTime.current;
-        
+
         if (elapsed >= animationSpeed) {
           setGrid((prev) => getNextGeneration(prev));
           setGeneration((prev) => prev + 1);
           lastUpdateTime.current = timestamp;
         }
-        
+
         animationId = requestAnimationFrame(animate);
       }
     };
@@ -419,6 +426,35 @@ const GameOfLife = () => {
     }
   }, [grid, renderMode, gridSize, dimensions]);
 
+  const handleRulesOpen = () => {
+    setRulesOpen(true);
+  };
+
+  const handleRulesClose = () => {
+    setRulesOpen(false);
+  };
+
+  const StyledTypography = styled(Typography)(({ theme }) => ({
+    fontWeight: 700,
+    background: "linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)",
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+    textShadow: "2px 2px 4px rgba(0,0,0,0.1)",
+    letterSpacing: "0.05em",
+    textTransform: "uppercase",
+    position: "relative",
+    "&::after": {
+      content: '""',
+      position: "absolute",
+      bottom: "-4px",
+      left: "0",
+      width: "190px",
+      height: "4px",
+      background: "linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)",
+      borderRadius: "2px",
+    },
+  }));
+
   // SVG Grid
   const SVGGrid = () => {
     const { cellSize, totalWidth, numRows } = getGridDimensions();
@@ -490,6 +526,9 @@ const GameOfLife = () => {
       <StyledCard>
         <CardContent>
           <ControlsContainer>
+            <StyledTypography variant="h5" gutterBottom>
+              Game Of Life
+            </StyledTypography>
             <FormControl style={{ minWidth: 100 }}>
               <InputLabel>Render Mode</InputLabel>
               <Select
@@ -505,7 +544,7 @@ const GameOfLife = () => {
             </FormControl>
 
             <Box sx={{ width: 300, mx: 2 }}>
-              <Typography gutterBottom>Grid Size</Typography>
+              <Typography gutterBottom>Grid Size:{gridSize}</Typography>
               <Slider
                 value={gridSize}
                 onChange={(_, value) => handleGridSizeChange(value)}
@@ -517,8 +556,6 @@ const GameOfLife = () => {
                 disabled={hasDisplayNumber}
               />
             </Box>
-
-            <Typography>Grid Size: {gridSize}</Typography>
             <TextField
               label="Display Number (upto 8-digits)"
               value={displayNumber}
@@ -527,8 +564,72 @@ const GameOfLife = () => {
               size="small"
               style={{ minWidth: 200 }}
             />
+            <Quiz
+              sx={{ fontSize: 30, color: "#1976D2", cursor: "pointer" }}
+              onClick={handleRulesOpen}
+            />
           </ControlsContainer>
-
+          <Dialog
+            open={rulesOpen}
+            onClose={handleRulesClose}
+            aria-labelledby="rules-dialog-title"
+            aria-describedby="rules-dialog-description"
+          >
+            <DialogTitle id="rules-dialog-title">
+              {"Conway's Game of Life Rules"}
+            </DialogTitle>
+            <DialogContent>
+              <DialogContentText id="rules-dialog-description">
+                <Typography variant="h6" gutterBottom>
+                  Basic Rules:
+                </Typography>
+                <Typography paragraph>
+                  The Game of Life is played on a grid where each cell can be
+                  either alive or dead. The next generation is calculated based
+                  on these rules:
+                </Typography>
+                <Typography component="div" sx={{ mb: 2 }}>
+                  1. Any live cell with fewer than two live neighbors dies
+                  (underpopulation)
+                </Typography>
+                <Typography component="div" sx={{ mb: 2 }}>
+                  2. Any live cell with two or three live neighbors lives on to
+                  the next generation
+                </Typography>
+                <Typography component="div" sx={{ mb: 2 }}>
+                  3. Any live cell with more than three live neighbors dies
+                  (overpopulation)
+                </Typography>
+                <Typography component="div" sx={{ mb: 2 }}>
+                  4. Any dead cell with exactly three live neighbors becomes a
+                  live cell (reproduction)
+                </Typography>
+                <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
+                  How to Play:
+                </Typography>
+                <Typography component="div" sx={{ mb: 1 }}>
+                  • Click on cells to toggle them between alive and dead states
+                </Typography>
+                <Typography component="div" sx={{ mb: 1 }}>
+                  • Use the Start button to begin the simulation
+                </Typography>
+                <Typography component="div" sx={{ mb: 1 }}>
+                  • Use the Pause button to temporarily stop the simulation
+                </Typography>
+                <Typography component="div" sx={{ mb: 1 }}>
+                  • Use the Reset button to clear the grid
+                </Typography>
+                <Typography component="div" sx={{ mb: 1 }}>
+                  • Use the Invert button to flip all cell states
+                </Typography>
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleRulesClose} variant="contained" sx={{mr:6, mb:2}}>
+                Got it!
+              </Button>
+            </DialogActions>
+          </Dialog>
           <GridContainer>
             {renderMode === "canvas" && (
               <canvas
